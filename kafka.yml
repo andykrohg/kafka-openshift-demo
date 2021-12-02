@@ -22,7 +22,7 @@ spec:
           type: scram-sha-512
       tls:
         authentication:
-          type: tls
+          type: scram-sha-512
     replicas: 3
     storage:
       type: ephemeral
