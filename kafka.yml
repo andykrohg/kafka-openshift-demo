@@ -18,12 +18,10 @@ spec:
       transaction.state.log.replication.factor: 3
     listeners:
       plain:
-        authentiation:
-          type: scram-sha-512
         authentication:
           type: scram-sha-512
       tls:
-        authentiation:
+        authentication:
           type: tls
     replicas: 3
     storage:
