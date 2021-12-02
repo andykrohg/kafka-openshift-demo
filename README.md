@@ -10,7 +10,7 @@ Here we'll create a Kafka cluster with accompanying ZooKeeper cluster
     oc apply -f kafka.yml
     ```
 
-# Creating Users
+## Creating Users
 1. Create two `KafkaUsers`: **michael** and **dwight**. Michael has `All` privileges on the topic **scranton**, whereas Dwight only has `Read` and `Describe` access.
     ```bash
     oc apply -f kafka-user-michael.yml -f kafka-user-dwight.yml
@@ -26,7 +26,7 @@ Here we'll create a Kafka cluster with accompanying ZooKeeper cluster
     DWIGHT_PASSWORD=$(oc extract secret/dwight --keys=password --to=-)
     ```
 
-# Creating a Topic
+## Connecting to Kafka
 1. As `michael` produce some messages to the `scranton` topic:
     ```bash
     oc exec -it my-cluster-kafka-0 -- /opt/kafka/bin/kafka-console-producer.sh \
