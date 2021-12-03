@@ -76,17 +76,10 @@ Here we'll create a Kafka cluster with accompanying ZooKeeper cluster
     ```
 
 
-## Deploying a Service Registry
-Now we'll deploy a Service Registry to manage topic schemas.
+## Working with a Service Registry
+I **highly** recommend deploying [this excellent demo](https://github.com/rmarting/kafka-clients-quarkus-sample) ahead of time, and walking through the different connections.
 
-1. Install the **Red Hat Integration - Service Registry Operator** from OperatorHub.
-2. Next we'll create an `ApicurioRegistry`, using the existing Kafka cluster as a data store. The Service Registry will need elevated privileges to Kafka to manage its own topics, so create a `KafkaUser` for it to use:
-    ```bash
-    oc apply -f service-registry/kafka-user-registry.yml
-    ```
-3. Then create the registry itself:
-    ```bash
-    oc apply -f service-registry/service-registry.yml
-    ```
-4. Open the Route for Apicurio Registry to view the dashboard.
-5. Click **Upload Artifact**, and either drag/drop or paste the content from `service-registry/fullname-schema.json`
+> You may need to update a few `apiVersion` tags to differentiate from upstream, and `oc expose svc kafka-clients-quarkus-sample` may be required to expose a `Route` for the quarkus app.
+
+## Working with Kafka Connect
+Consider leveraging [a demo I built](https://github.com/andykrohg/db2-debezium) to demonstrate **Kafka Connect** and **Debezium** for zero-code streaming pipelines.
