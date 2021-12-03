@@ -1,14 +1,33 @@
 # Kafka on Red Hat OpenShift Demo
 This demo showcases various capabilities of running Kafka on OpenShift.
 
-## Installing Kafka
-Here we'll create a Kafka cluster with accompanying ZooKeeper cluster 
-
-1. Install the **Red Hat Integration - AMQ Streams Operator** from OperatorHub.
-2. Create a `Kafka` instance using the CR in this repo:
+Before any of these, be sure to install the **Red Hat Integration - AMQ Streams Operator** from OperatorHub into **All Namespaces**.
+## Basic Installation
+1. From the **Developer Perspective**, click **+Add**, and select **Operator Backed** under **Developer Catalog**.
+2. Select **Kafka**, click **Create**, and install with defaults. Optionally browse the Form view here to demonstrate the configuration options that are available.
+3. When Kafka comes up, create a topic and send some messages:
     ```bash
-    oc apply -f kafka.yml
+    oc exec -it my-cluster-kafka-0 -- /opt/kafka/bin/kafka-console-producer.sh \
+        --bootstrap-server localhost:9092 \
+        --topic my-topic
     ```
+4. In a separate console, open a consumer to read them:
+    ```bash
+    oc exec -it my-cluster-kafka-0 -- /opt/kafka/bin/kafka-console-consumer.sh \
+        --bootstrap-server localhost:9092 \
+        --topic my-topic \
+        --from-beginning
+    ```
+5. Delete one of the broker pods to demonstrate auto-healing capability.
+6. Increase the number of replicas to show auto-scaling ability.
+
+## Working with Authorization
+Create a `Kafka` instance:
+* Kafka -> Listeners -> plain -> Authentication -> Type = scram-sha-512
+* Kafka -> Authorization -> Type = simple
+
+> Alternatively, just use the CR in this repo: `oc apply -f kafka.yml`
+
 
 ## Creating Users
 1. Create two `KafkaUsers`: **michael** and **dwight**. Michael has `All` privileges on the topic **scranton**, whereas Dwight only has `Read` and `Describe` access.
