@@ -22,6 +22,7 @@ Before any of these, be sure to install the **Red Hat Integration - AMQ Streams 
 6. Increase the number of replicas to show auto-scaling ability.
 
 ## Working with Authorization
+### Installing Kafka
 Create a `Kafka` instance:
 * Kafka -> Listeners -> plain -> Authentication -> Type = scram-sha-512
 * Kafka -> Authorization -> Type = simple
@@ -29,7 +30,7 @@ Create a `Kafka` instance:
 > Alternatively, just use the CR in this repo: `oc apply -f kafka.yml`
 
 
-## Creating Users
+### Creating Users
 1. Create two `KafkaUsers`: **michael** and **dwight**. Michael has `All` privileges on the topic **scranton**, whereas Dwight only has `Read` and `Describe` access.
     ```bash
     oc apply -f kafka-user-michael.yml -f kafka-user-dwight.yml
@@ -45,7 +46,7 @@ Create a `Kafka` instance:
     DWIGHT_PASSWORD=$(oc extract secret/dwight --keys=password --to=-)
     ```
 
-## Connecting to Kafka
+### Connecting to Kafka
 1. As `michael` produce some messages to the `scranton` topic:
     ```bash
     oc exec -it my-cluster-kafka-0 -- /opt/kafka/bin/kafka-console-producer.sh \
