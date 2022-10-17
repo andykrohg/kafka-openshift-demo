@@ -103,3 +103,64 @@ I **highly** recommend deploying [this excellent demo](https://github.com/rmarti
 
 ## Working with Kafka Connect
 Consider leveraging [a demo I built](https://github.com/andykrohg/db2-debezium) to demonstrate **Kafka Connect** and **Debezium** for zero-code streaming pipelines.
+
+## Working with MirrorMaker 2
+Follow these steps to demonstrate replication of data between multiple Kafka clusters.
+
+1. Create create two `Kafkas` with default config, one named `my-cluster-source`, and one named `my-cluster-target`.
+2. Create a `KafkaMirrorMaker2`:
+    ```bash
+    apiVersion: kafka.strimzi.io/v1beta2
+    kind: KafkaMirrorMaker2
+    metadata:
+    name: my-mm2-cluster
+    spec:
+    clusters:
+        - alias: my-cluster-source
+        bootstrapServers: 'my-cluster-source-kafka-bootstrap:9092'
+        - alias: my-cluster-target
+        bootstrapServers: 'my-cluster-target-kafka-bootstrap:9092'
+        config:
+            config.storage.replication.factor: 3
+            offset.storage.replication.factor: 3
+            status.storage.replication.factor: 3
+    connectCluster: my-cluster-target
+    mirrors:
+        - checkpointConnector:
+            config:
+            checkpoints.topic.replication.factor: 3
+        groupsPattern: .*
+        heartbeatConnector:
+            config:
+            heartbeats.topic.replication.factor: 3
+        sourceCluster: my-cluster-source
+        sourceConnector:
+            config:
+            offset-syncs.topic.replication.factor: 3
+            replication.factor: 3
+            sync.topic.acls.enabled: 'false'
+        targetCluster: my-cluster-target
+        topicsPattern: .*
+    replicas: 1
+    version: 3.2.3
+    ```
+3. Send some messages to the source cluster:
+    ```bash
+    oc exec -it my-cluster-source-kafka-0 -- /opt/kafka/bin/kafka-console-producer.sh \
+        --bootstrap-server localhost:9092 \
+        --topic copy-me
+    ```
+4. Read them from the source cluster:
+    ```bash
+    oc exec -it my-cluster-source-kafka-0 -- /opt/kafka/bin/kafka-console-consumer.sh \
+        --bootstrap-server localhost:9092 \
+        --topic copy-me \
+        --from-beginning
+    ```
+5. And read them from the target cluser too. MirrorMaker prepends the source cluster's alias to the topic name:
+    ```bash
+    oc exec -it my-cluster-target-kafka-0 -- /opt/kafka/bin/kafka-console-consumer.sh \
+        --bootstrap-server localhost:9092 \
+        --topic my-cluster-source.copy-me \
+        --from-beginning
+    ```
